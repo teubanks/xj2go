@@ -132,7 +132,7 @@ func Test_JSONBytesToGo(t *testing.T) {
 			if err != nil {
 				t.Errorf("ioutil.ReadFile() error = %v", err)
 			}
-			if err := JSONBytesToGo(path.Base(v), pkgname, root, &b); err != nil {
+			if err := JSONBytesToGoFile(path.Base(v), pkgname, root, &b); err != nil {
 				t.Errorf("JSONBytesToGo() error = %v", err)
 				return
 			}

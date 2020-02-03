@@ -43,7 +43,7 @@ func jsonFileToMap(root, filename string) (map[string]interface{}, error) {
 	return jsonDecode(&m, &val)
 }
 
-func jsonBytesToMap(pkg, root string, b *[]byte) (map[string]interface{}, error) {
+func jsonBytesToMap(root string, b *[]byte) (map[string]interface{}, error) {
 	if root == "" {
 		root = "Result"
 	}

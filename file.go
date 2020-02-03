@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path"
 	"regexp"
-	"sort"
 )
 
 func checkFile(filename, pkg string) (string, error) {
@@ -34,7 +33,7 @@ func checkFile(filename, pkg string) (string, error) {
 	return filename, nil
 }
 
-func writeStruct(filename, pkg string, strcts []strctMap) error {
+func writeStructToFile(filename, pkg string, strcts []strctMap) error {
 	re := regexp.MustCompile("\\[|\\]")
 	filename = re.ReplaceAllString(filename, "")
 
@@ -45,44 +44,10 @@ func writeStruct(filename, pkg string, strcts []strctMap) error {
 		return err
 	}
 
-	pkgLines := make(map[string]string)
-	strctLines := []string{}
-
-	var roots []string
-	strctsMap := make(map[string]strctMap)
-
-	for _, strct := range strcts {
-		for root := range strct {
-			roots = append(roots, root)
-			strctsMap[root] = strct
-		}
-	}
-
-	sort.Strings(roots)
-
-	for _, root := range roots {
-		strct := strctsMap[root]
-		for r, sns := range strct {
-			sort.Sort(byName(sns))
-			strctLines = append(strctLines, "type "+toProperCase(r)+" struct {\n")
-			for i := 0; i < len(sns); i++ {
-				if sns[i].Type == "time.Time" {
-					pkgLines["time.Time"] = "import \"time\"\n"
-				}
-				strctLines = append(strctLines, "\t"+toProperCase(sns[i].Name)+"\t"+sns[i].Type+"\t"+sns[i].Tag+"\n")
-			}
-			strctLines = append(strctLines, "}\n")
-		}
-	}
-
-	strctLines = append(strctLines, "\n")
-
-	file.WriteString("package " + pkg + "\n\n")
-	for _, pl := range pkgLines {
-		file.WriteString(pl)
-	}
-	for _, sl := range strctLines {
-		file.WriteString(sl)
+	err = writeStruct(file, pkg, strcts)
+	if err != nil {
+		log.Fatal(err)
+		return err
 	}
 
 	ft := exec.Command("go", "fmt", filename)
